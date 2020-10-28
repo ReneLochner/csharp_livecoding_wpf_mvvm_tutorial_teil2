@@ -13,10 +13,11 @@
      -->
   <Grid>
     <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"></RowDefinition>
-      <RowDefinition Height="Auto"></RowDefinition>
-      <RowDefinition></RowDefinition>
-    </Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
     <Button Height="30" Command="{Binding CmdSaveChanges}">Änderung speichern</Button>
     <UniformGrid Grid.Row="1" Rows="2" Columns="2">
       <TextBlock>Vorname:</TextBlock>
@@ -32,6 +33,7 @@
         </GridView>
       </ListView.View>
     </ListView>
+        <Button Grid.Row="3" Command="{Binding CmdEditActivities}">Tätigkeiten bearbeiten</Button>
   </Grid>
 </Window>
 

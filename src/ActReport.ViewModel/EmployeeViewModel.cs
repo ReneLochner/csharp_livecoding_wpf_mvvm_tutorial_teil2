@@ -57,7 +57,7 @@ namespace ActReport.ViewModel
       }
     }
 
-    public EmployeeViewModel()
+    public EmployeeViewModel(IController controller):base(controller)
     {
       LoadEmployees();
     }
@@ -98,5 +98,20 @@ namespace ActReport.ViewModel
       }
       set { _cmdSaveChanges = value; }
     }
-  }
+
+    private ICommand _cmdEditActivies;
+    public ICommand CmdEditActivites {
+            get {
+                if(_cmdEditActivies == null)
+                {
+                    _cmdEditActivies = new RelayCommand(
+                        execute: _ => _controller.ShowWindow(new ActivityViewModel(_controller, SelectedEmployee)),
+                        canExecute: _ => SelectedEmployee != null
+                    );
+                }
+
+                return _cmdEditActivies;
+            }
+        }
+    }
 }
