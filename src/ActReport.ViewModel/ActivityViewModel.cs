@@ -6,17 +6,28 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Windows;
+using System.Windows.Input;
 
 namespace ActReport.ViewModel {
     public class ActivityViewModel : BaseViewModel {
         private Employee _employee;
         private ObservableCollection<Activity> _activities;
+        private Activity _selectedActivity;
 
-        private ObservableCollection<Activity> Activities {
+        public ObservableCollection<Activity> Activities {
             get => _activities;
             set {
                 _activities = value;
                 OnPropertyChanged(nameof(Activities));
+            }
+        }
+
+        public Activity SelectedActivity {
+            get => _selectedActivity;
+            set {
+                _selectedActivity = value;
+                OnPropertyChanged(nameof(SelectedActivity));
             }
         }
 
@@ -25,24 +36,15 @@ namespace ActReport.ViewModel {
         public ActivityViewModel(IController controller, Employee employee) : base(controller)
         {
             _employee = employee;
-
-            using IUnitOfWork uow = new UnitOfWork();
-            Activities = new ObservableCollection<Activity>(uow.ActivityRepository.Get(
-                filter: x => x.Employee_Id == employee.Id,
-                orderBy: coll => coll.OrderBy(activity => activity.Date).ThenBy(activity => activity.StartTime)));
+            LoadActivities();
         }
 
-        private void LoadActivites()
+        private void LoadActivities()
         {
-            using (UnitOfWork uow = new UnitOfWork())
-            {
-                Activities = new ObservableCollection<Activity>(
-                    uow.ActivityRepository.Get(
-                        filter: p => p.Employee_Id == _employee.Id,
-                        orderBy: coll => coll.OrderBy(act => act.Date).ThenBy(act => act.StartTime)
-                    )
-                );
-            }
+            using IUnitOfWork uow = new UnitOfWork();
+            Activities = new ObservableCollection<Activity>(uow.ActivityRepository.Get(
+                filter: x => x.Employee_Id == _employee.Id,
+                orderBy: coll => coll.OrderBy(activity => activity.Date).ThenBy(activity => activity.StartTime)));
 
             Activities.CollectionChanged += Activities_CollectionChanged;
         }
@@ -60,6 +62,57 @@ namespace ActReport.ViewModel {
 
                     uow.Save();
                 }
+            }
+        }
+
+        private ICommand _cmdAddActivity;
+        public ICommand CmdAddActivity {
+            get {
+                if (_cmdAddActivity == null)
+                {
+                    _cmdAddActivity = new RelayCommand(
+                        execute: _ => _controller.ShowWindow(new AddActivityViewModel(_controller, _employee, null)),
+                        canExecute: _ => true
+                    );
+                }
+
+                return _cmdAddActivity;
+            }
+        }
+
+        private ICommand _cmdEditActivity;
+        public ICommand CmdEditActivity {
+            get {
+                if (_cmdEditActivity == null)
+                {
+                    _cmdEditActivity = new RelayCommand(
+                        execute: _ => _controller.ShowWindow(new AddActivityViewModel(_controller, _employee, SelectedActivity)),
+                        canExecute: _ => SelectedActivity != null && _cmdDeleteActivity != null
+                    );
+                }
+
+                return _cmdEditActivity;
+            }
+        }
+
+        private ICommand _cmdDeleteActivity;
+        public ICommand CmdDeleteActivity {
+            get {
+                if (_cmdDeleteActivity == null)
+                {
+                    _cmdDeleteActivity = new RelayCommand(
+                       execute: _ =>
+                       {
+                           using IUnitOfWork uow = new UnitOfWork();
+
+                           uow.ActivityRepository.Delete(SelectedActivity);
+                           uow.Save();
+                           LoadActivities();
+                       },
+                canExecute: _ => SelectedActivity != null && _cmdDeleteActivity != null);
+                }
+
+                return _cmdDeleteActivity;
             }
         }
     }

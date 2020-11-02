@@ -9,7 +9,8 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Vertical">
@@ -17,9 +18,9 @@
             <TextBlock Foreground="DarkGreen" Text="{Binding FullName}"></TextBlock>
         </StackPanel>
 
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Activities}" AutoGenerateColumns="False">
+        <DataGrid Grid.Row="1" SelectedItem="{Binding SelectedActivity}" ItemsSource="{Binding Activities}" AutoGenerateColumns="False" IsReadOnly="True">
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Datum" MinWidth="110">
+                <DataGridTemplateColumn Header="Datum" MinWidth="110" IsReadOnly="True">
                     <DataGridTemplateColumn.CellEditingTemplate>
                         <DataTemplate>
                             <DatePicker SelectedDate="{Binding Path=Date, UpdateSourceTrigger=PropertyChanged}" SelectedDateFormat="Short" />
@@ -31,10 +32,15 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Von" MinWidth="60" Binding="{Binding Path=StartTime, StringFormat=HH:mm, UpdateSourceTrigger=LostFocus}" />
-                <DataGridTextColumn Header="Bis" MinWidth="60" Binding="{Binding Path=EndTime, StringFormat=HH:mm, UpdateSourceTrigger=LostFocus}" />
-                <DataGridTextColumn Header="Tätigkeit" MinWidth="200" Binding="{Binding Path=ActivityText, UpdateSourceTrigger=LostFocus}" />
+                <DataGridTextColumn Header="Von" MinWidth="60" Binding="{Binding Path=StartTime, StringFormat=HH:mm, UpdateSourceTrigger=LostFocus}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Bis" MinWidth="60" Binding="{Binding Path=EndTime, StringFormat=HH:mm, UpdateSourceTrigger=LostFocus}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Tätigkeit" MinWidth="200" Binding="{Binding Path=ActivityText, UpdateSourceTrigger=LostFocus}" IsReadOnly="True" />
             </DataGrid.Columns>
         </DataGrid>
+        <UniformGrid Grid.Row="2" Rows="1" Columns="3">
+            <Button Command="{Binding CmdAddActivity}">Tätigkeit hinzufügen</Button>
+            <Button Command="{Binding CmdEditActivity}">Tätigkeit bearbeiten</Button>
+            <Button Command="{Binding CmdDeleteActivity}">Tätigkeit löschen</Button>
+        </UniformGrid>
     </Grid>
 </Window>
